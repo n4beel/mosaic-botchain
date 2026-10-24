@@ -107,7 +107,7 @@ export function describeError(err: unknown): string {
     switch (details.errorName) {
       case "WrongPayment": {
         const expected = details.args?.[0];
-        if (expected !== undefined) {
+        if (expected !== undefined && expected !== null) {
           const formatted = formatEther(BigInt(expected.toString()));
           return `Someone got there first. The price is now ${formatted} BOT — look again.`;
         }
