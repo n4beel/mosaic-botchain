@@ -69,9 +69,7 @@ export default function CellCard({
 
   const settledRef = useRef<Set<string>>(new Set());
   const clientRef = useRef(publicClient);
-  useEffect(() => {
-    clientRef.current = publicClient;
-  }, [publicClient]);
+  clientRef.current = publicClient;
 
   // When a single cell is selected, update default color to current color if already claimed
   useEffect(() => {

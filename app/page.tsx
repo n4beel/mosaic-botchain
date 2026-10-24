@@ -68,9 +68,10 @@ function WallView() {
   const stepPrice = (priceConfigs?.[1]?.result as bigint) ?? STEP_DEFAULT;
 
   const clientRef = useRef(publicClient);
-  useEffect(() => {
-    clientRef.current = publicClient;
-  }, [publicClient]);
+  clientRef.current = publicClient;
+
+  const routerRef = useRef(router);
+  routerRef.current = router;
 
   // Initial Wall Load (4 parallel pages via fetchWall)
   useEffect(() => {
@@ -107,10 +108,10 @@ function WallView() {
   }, [contractAddress]);
 
   // Parse shareable query coordinate `?c=x,y` on load
+  const coordParam = searchParams.get("c");
   useEffect(() => {
-    const c = searchParams.get("c");
-    if (c) {
-      const parts = c.split(",");
+    if (coordParam) {
+      const parts = coordParam.split(",");
       if (parts.length === 2) {
         const x = parseInt(parts[0], 10);
         const y = parseInt(parts[1], 10);
@@ -120,7 +121,7 @@ function WallView() {
         }
       }
     }
-  }, [searchParams]);
+  }, [coordParam]);
 
   // Live event subscription via watchContractEvent (§4.2)
   useWatchContractEvent({
@@ -158,14 +159,11 @@ function WallView() {
   });
 
   // Select cell handler
-  const handleSelectCell = useCallback(
-    (id: number) => {
-      setSelectedId(id);
-      const { x, y } = idToXY(id);
-      router.replace(`/?c=${x},${y}`, { scroll: false });
-    },
-    [router]
-  );
+  const handleSelectCell = useCallback((id: number) => {
+    setSelectedId(id);
+    const { x, y } = idToXY(id);
+    routerRef.current.replace(`/?c=${x},${y}`, { scroll: false });
+  }, []);
 
   // Toggle batch cell handler
   const handleToggleBatchCell = useCallback((id: number) => {
