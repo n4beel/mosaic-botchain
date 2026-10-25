@@ -226,6 +226,12 @@ export const mosaicAbi = [
     name: "ZeroAddress",
     inputs: [],
   },
+  {
+    type: "error",
+    name: "Reentrancy",
+    inputs: [],
+  },
 ] as const;
 
 export const contractAbi = mosaicAbi;
+

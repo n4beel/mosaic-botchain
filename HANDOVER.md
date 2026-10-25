@@ -80,3 +80,37 @@ None.
 
 ## Suggestions
 None.
+
+## Feedback round 1
+
+All findings from `docs/specs/FEEDBACK-mosaic.md` addressed and verified:
+
+1. **Replaced string revert guard with custom error (`contracts/src/Mosaic.sol`):** FIXED.
+   - Replaced `require(_lock == 1, "REENTRANT");` with `if (_lock != 1) revert Reentrancy();` positioned at the entry of `withdraw()`.
+   - Declared `error Reentrancy();` in `Mosaic.sol`.
+   - Added `Reentrancy` to `lib/botchain/abi.ts` and mapped it to `"Reentrant call detected."` in `lib/errors.ts`.
+   - Added unit test in `lib/__tests__/errors.test.ts` and `test_ReentrancyCustomError` with reentrant receiver contract in `contracts/test/Mosaic.t.sol`.
+   - Verified 0 string-revert `require(` statements remain across `contracts/src`.
+
+2. **Real browser walkthrough (`docs/specs/tools/mock-wallet.js`):** FIXED.
+   - Walkthrough conducted on running local stack (`http://127.0.0.1:8702`) and dev server (`http://localhost:3002`) with Google Chrome headless and `mock-wallet.js`.
+   - Verified responsive layouts across 360 px, 720 px, and 1280 px viewports.
+   - Tested route `/` as Observer (browsed public wall, preselected cells via `?c=0,0` and `?c=2,2`, validated state labels and gate notes).
+   - Tested route `/` as Account 0 (repainted owned cell (2,2) on-chain, claimed unclaimed cell (0,0) for 0.002 BOT).
+   - Tested route `/mine` as Account 0 (portfolio view with swatches, coordinates, resale values, inline repaint triggers).
+   - Tested route `/mine` as Account 1 (withdrew 0.056 BOT pending sales balance on-chain; verified balance zeroed out).
+   - Tested route `/mine` as Observer (verified connection prompt per conventions).
+   - Verified 0 console errors and 0 hydration warnings across all routes and interactions.
+
+### Browser Walkthrough Results
+
+| Route | Role | Action | Status | Console Errors | Hydration Warnings | Notes |
+|---|---|---|---|---|---|---|
+| `/` (360px, 720px, 1280px) | Visitor | Viewport responsiveness checks | PASS | 0 | 0 | Wall canvas and HUD scale cleanly; no horizontal overflow |
+| `/?c=x,y` | Observer (No Wallet) | Browse wall with coordinate preselection and view cell states | PASS | 0 | 0 | Wall renders, share links preselect cells, unclaimed/owned states and gate notes display correctly |
+| `/?c=2,2` | Acc 0 (Cell Owner) | Repaint owned cell (2,2) for free on-chain | PASS | 0 | 0 | Repaint (free) executed on-chain, transaction confirmed, cell state updated |
+| `/?c=0,0` | Acc 0 (Buyer) | Claim unclaimed cell (0,0) for 0.002 BOT | PASS | 0 | 0 | Claimed cell on-chain; state transitioned to owned by you with celebratory outline |
+| `/mine` | Acc 0 (Collector) | View personal wall portfolio and owned cell controls | PASS | 0 | 0 | Lists owned cells with swatches, coordinates, resale values, and inline repaint triggers |
+| `/mine` | Acc 1 (Seller with Pending) | Withdraw 0.056 BOT pending sales balance on-chain | PASS | 0 | 0 | Withdraw transaction succeeded on-chain; pending balance zeroed out |
+| `/mine` | Observer (No Wallet) | Validate protected /mine gate without wallet | PASS | 0 | 0 | Displays BotChainGate connection prompt informing user to connect wallet to view portfolio |
+

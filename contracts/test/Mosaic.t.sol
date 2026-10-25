@@ -14,6 +14,29 @@ contract RevertingReceiver {
   }
 }
 
+contract ReentrantReceiver {
+  Mosaic public mosaic;
+  bytes public capturedRevert;
+
+  constructor(address mosaicAddress) {
+    mosaic = Mosaic(mosaicAddress);
+  }
+
+  function withdraw() external {
+    mosaic.withdraw();
+  }
+
+  receive() external payable {
+    (bool ok, bytes memory data) = address(mosaic).call(
+      abi.encodeWithSelector(Mosaic.withdraw.selector)
+    );
+    if (!ok) {
+      capturedRevert = data;
+    }
+  }
+}
+
+
 contract MosaicHandler is Test {
   Mosaic public mosaic;
   address public beneficiary;
@@ -265,6 +288,27 @@ contract MosaicTest is Test {
     vm.prank(beneficiary);
     mosaic.withdraw();
     assertEq(beneficiary.balance, benBalBefore + benPending);
+  }
+
+  function test_ReentrancyCustomError() public {
+    ReentrantReceiver attacker = new ReentrantReceiver(address(mosaic));
+    uint16 id = 99;
+    vm.deal(address(attacker), 1 ether);
+    vm.prank(address(attacker));
+    mosaic.claim{value: BASE_PRICE}(id, 0x111111);
+
+    // Alice claims cell from attacker -> attacker gets pending credit
+    uint256 resalePrice = BASE_PRICE + STEP;
+    vm.prank(alice);
+    mosaic.claim{value: resalePrice}(id, 0xFFFFFF);
+    assertEq(mosaic.pending(address(attacker)), resalePrice);
+
+    // Attacker withdraws; receive() reenters withdraw() and gets Reentrancy custom error
+    attacker.withdraw();
+    assertEq(
+      attacker.capturedRevert(),
+      abi.encodeWithSelector(Mosaic.Reentrancy.selector)
+    );
   }
 
   function test_ClaimMany_SumPrice_Atomic() public {

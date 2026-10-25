@@ -82,6 +82,11 @@ describe("describeError", () => {
     expect(describeError(error)).toBe("Beneficiary address cannot be zero.");
   });
 
+  it("handles Reentrancy custom error", () => {
+    const error = { data: { errorName: "Reentrancy", args: [] } };
+    expect(describeError(error)).toBe("Reentrant call detected.");
+  });
+
   it("handles generic Error fallback", () => {
     expect(describeError(new Error("RPC timeout"))).toBe(
       "Transaction reverted. RPC timeout"

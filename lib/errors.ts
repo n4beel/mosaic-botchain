@@ -130,6 +130,8 @@ export function describeError(err: unknown): string {
         return "The transfer to your wallet failed. Try again.";
       case "ZeroAddress":
         return "Beneficiary address cannot be zero.";
+      case "Reentrancy":
+        return "Reentrant call detected.";
     }
   }
 

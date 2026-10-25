@@ -51,6 +51,7 @@ contract Mosaic {
   error NothingToWithdraw();
   error TransferFailed();
   error ZeroAddress();
+  error Reentrancy();
 
   constructor(uint256 basePrice, uint256 step, address beneficiary) {
     if (beneficiary == address(0) || basePrice == 0) revert ZeroAddress();
@@ -141,12 +142,12 @@ contract Mosaic {
 
   /// @notice Withdraw credited proceeds from cell sales
   function withdraw() external {
+    if (_lock != 1) revert Reentrancy();
     uint256 amount = pending[msg.sender];
     if (amount == 0) revert NothingToWithdraw();
 
     pending[msg.sender] = 0;
 
-    require(_lock == 1, "REENTRANT");
     _lock = 2;
     (bool ok, ) = msg.sender.call{value: amount}("");
     _lock = 1;
