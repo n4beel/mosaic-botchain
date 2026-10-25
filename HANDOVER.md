@@ -126,4 +126,20 @@ All findings from `docs/specs/FEEDBACK-mosaic.md` addressed and verified:
      # Output: 151 -> 154
      ```
 
+## Feedback round 3
+
+- **Footer Three-Link Compliance & Helper:**
+  - Added fixed constants `BOTCHAIN_SITE_URL = "https://botchain.ai"` and `BOTCHAIN_EXPLORER_URL = "https://scan.botchain.ai"` in `lib/botchain/chain.ts`.
+  - Added exported `footerLinks(chainId?: number): FooterLinks` returning `{ contract, site, explorer }` where `contract` is `<explorer for that chain>/address/<address>` (or `null` when undeployed).
+  - Updated `BuiltOnBotChain` to use `footerLinks(activeBotChain.id).contract`.
+  - Updated `components/layout/PageShell.tsx` footer to consume `footerLinks()` for `site` and `explorer` URLs.
+  - Added `app/not-found.tsx` wrapped in `PageShell` for 404 pages ensuring footer renders on missing routes.
+  - Added unit test suite in `lib/botchain/__tests__/chain.test.ts` covering chain IDs 677 and 968 for both deployed and undeployed configurations.
+
+- **Browser-Check with Local Stack (port 8702 / 3000):**
+  - `/` (Home): Verified all three links present (`https://scan.bohr.life/address/0x5fbdb2315678afecb367f032d93f642f64180aa3`, `https://botchain.ai`, `https://scan.botchain.ai`).
+  - `/mine` (Detail): Verified all three links present.
+  - `/not-found-route` (Not Found): Verified all three links present.
+
+
 

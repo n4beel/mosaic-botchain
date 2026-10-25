@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import ConnectButton from "@/components/ui/ConnectButton";
 import NetworkBadge from "@/components/botchain/NetworkBadge";
 import BuiltOnBotChain from "@/components/botchain/BuiltOnBotChain";
+import { footerLinks } from "@/lib/botchain/chain";
 import { app } from "@/lib/app-config";
 
 export interface NavItem {
@@ -21,6 +22,7 @@ export interface PageShellProps {
 
 export default function PageShell({ children }: PageShellProps) {
   const pathname = usePathname();
+  const { site, explorer } = footerLinks();
 
   return (
     <div className="relative min-h-[100dvh] w-full bg-[var(--bg-base)] text-[var(--text-primary)] flex flex-col justify-between p-3 md:p-6 overflow-x-hidden">
@@ -89,7 +91,7 @@ export default function PageShell({ children }: PageShellProps) {
           <BuiltOnBotChain className="text-[10px] uppercase tracking-wider" />
           <span>·</span>
           <a
-            href="https://botchain.ai"
+            href={site}
             target="_blank"
             rel="noreferrer"
             className="hover:text-[var(--text-primary)] underline decoration-[var(--border-subtle)]"
@@ -98,7 +100,7 @@ export default function PageShell({ children }: PageShellProps) {
           </a>
           <span>·</span>
           <a
-            href="https://scan.botchain.ai"
+            href={explorer}
             target="_blank"
             rel="noreferrer"
             className="hover:text-[var(--text-primary)] underline decoration-[var(--border-subtle)]"
