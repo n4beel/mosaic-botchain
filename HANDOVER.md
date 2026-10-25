@@ -114,3 +114,16 @@ All findings from `docs/specs/FEEDBACK-mosaic.md` addressed and verified:
 | `/mine` | Acc 1 (Seller with Pending) | Withdraw 0.056 BOT pending sales balance on-chain | PASS | 0 | 0 | Withdraw transaction succeeded on-chain; pending balance zeroed out |
 | `/mine` | Observer (No Wallet) | Validate protected /mine gate without wallet | PASS | 0 | 0 | Displays BotChainGate connection prompt informing user to connect wallet to view portfolio |
 
+## Feedback round 2
+
+1. **Local-stack autonomous mining (`--block-time 1`):**
+   - Configured `anvil` in `scripts/local-stack.mjs` with `--block-time 1` to produce blocks autonomously on a 1-second cadence.
+   - Seeded states (~186 cells claimed, 20 retakes so sales >= 2, Account 0 with 9 cells, Account 1 with pending balance) verified.
+   - Final chain timestamp matches wall clock (`diff: 0s`, within 120s limit).
+   - Confirmed autonomous block progression without manual mining:
+     ```bash
+     b1=$(cast block-number --rpc-url http://127.0.0.1:8702); sleep 3; b2=$(cast block-number --rpc-url http://127.0.0.1:8702); echo "$b1 -> $b2"
+     # Output: 151 -> 154
+     ```
+
+

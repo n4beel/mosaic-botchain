@@ -64,6 +64,8 @@ spawn(
     "10",
     "--timestamp",
     String(realNow),
+    "--block-time",
+    "1",
     "--silent",
   ],
   {
