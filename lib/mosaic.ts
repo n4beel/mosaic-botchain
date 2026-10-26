@@ -158,23 +158,23 @@ export function applyLog(
   wall: Cell[],
   log: {
     eventName?: string;
-    args?: {
-      id?: number | bigint;
-      buyer?: Address;
-      seller?: Address;
-      owner?: Address;
-      color?: number | bigint;
-      sales?: number | bigint;
-    };
+    args?: any;
   }
 ): void {
-  if (!log.args || log.args.id === undefined) return;
+  if (!log || !log.args || log.args.id === undefined) return;
   const id = Number(log.args.id);
   if (id < 0 || id >= wall.length) return;
 
+  const current = wall[id] ?? {
+    id,
+    owner: "0x0000000000000000000000000000000000000000" as Address,
+    color: 0,
+    sales: 0,
+  };
+
   if (log.eventName === "CellClaimed" || (log.args.buyer && log.args.sales !== undefined)) {
     wall[id] = {
-      ...wall[id],
+      ...current,
       id,
       owner: log.args.buyer!,
       color: Number(log.args.color ?? 0),
@@ -182,10 +182,10 @@ export function applyLog(
     };
   } else if (log.eventName === "CellPainted" || log.args.owner) {
     wall[id] = {
-      ...wall[id],
+      ...current,
       id,
-      owner: log.args.owner ?? wall[id].owner,
-      color: Number(log.args.color ?? wall[id].color),
+      owner: log.args.owner ?? current.owner,
+      color: Number(log.args.color ?? current.color),
     };
   }
 }

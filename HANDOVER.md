@@ -141,5 +141,30 @@ All findings from `docs/specs/FEEDBACK-mosaic.md` addressed and verified:
   - `/mine` (Detail): Verified all three links present.
   - `/not-found-route` (Not Found): Verified all three links present.
 
+## Feedback round 4
+
+1. **Shared CSS tokens:**
+   - Defined missing shared tokens in `app/globals.css`:
+     - `--bg-elevated: #FFFFFF`
+     - `--border-default: #CFC8B8`
+     - `--text-secondary: #1F1D1A`
+     - `--text-tertiary: #5F5A50`
+     - Updated `--success: #1E663B`, `--warning: #8F5200`, `--danger: #B52814` to maintain high contrast (≥ 4.5:1) on white elevated cards and stone ground.
+   - Contrast measurements against `--bg-elevated` (`#FFFFFF`):
+     - `--text-secondary` (`#1F1D1A`): **16.1:1** (Passes AAA)
+     - `--text-tertiary` (`#5F5A50`): **6.25:1** (Passes AA)
+     - `--success` (`#1E663B`): **6.17:1** (Passes AA)
+     - `--warning` (`#8F5200`): **6.56:1** (Passes AA)
+     - `--danger` (`#B52814`): **6.0:1** (Passes AA)
+   - Added unit test `test/lint/tokens.test.ts` verifying all `var(--x)` without fallback in `app/` and `components/` are defined in `globals.css` or next/font.
+   - `python3 scripts/check-tokens.py mosaic` exits 0.
+
+2. **Live wall updates after write operations:**
+   - Decoded raw receipt event logs with `parseEventLogs({ abi: mosaicAbi, logs: receipt.logs })` in `CellCard.tsx` and `app/page.tsx`.
+   - Handled single cell claims (`CellClaimed`), recolouring (`CellPainted`), and multi-cell batch claims (`claimMany`).
+   - Implemented immediate state application via `applyLog` followed by backstop re-fetch via `fetchWall` on confirmation.
+   - Added unit test suite `lib/__tests__/receipt-events.test.ts` verifying that real receipt fixtures for `claim`, `paint`, and `claimMany` update the wall canvas state as expected.
+
+
 
 

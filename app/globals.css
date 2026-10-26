@@ -20,15 +20,19 @@
 :root {
   --bg-base: #E9E4D8;
   --bg-surface: #F5F1E8;
-  --text-primary: #1F1D1A;
-  --text-muted: #5F5A50;
+  --bg-elevated: #FFFFFF;
   --border-subtle: #CFC8B8;
+  --border-default: #CFC8B8;
   --border-ink: #1F1D1A;
+  --text-primary: #1F1D1A;
+  --text-secondary: #1F1D1A;
+  --text-tertiary: #5F5A50;
+  --text-muted: #5F5A50;
   --accent: #C2401F;
   --accent-ink: #FFFFFF;
-  --success: #2C6B4F;
-  --warning: #D4A857;
-  --danger: #C2401F;
+  --success: #1E663B;
+  --warning: #8F5200;
+  --danger: #B52814;
 }
 
 @layer base {

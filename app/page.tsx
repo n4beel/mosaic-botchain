@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { parseEventLogs } from "viem";
 import { useAccount, useChainId, usePublicClient, useWatchContractEvent, useReadContracts } from "wagmi";
 import PageShell from "@/components/layout/PageShell";
 import WallCanvas from "@/components/mosaic/WallCanvas";
@@ -191,16 +192,35 @@ function WallView() {
     }
   }, [selectedId, toast]);
 
-  // Optimistic log updater on transaction success
+  // Immediate wall updater on transaction success with backstop refetch
   const handleTxSuccess = useCallback((logs: any[]) => {
+    let parsedLogs = logs;
+    try {
+      if (logs.length > 0 && ("topics" in logs[0] || !logs[0].args)) {
+        parsedLogs = parseEventLogs({
+          abi: mosaicAbi,
+          logs,
+        });
+      }
+    } catch {
+      // keep original logs if parsing fails
+    }
+
     setWall((prev) => {
       const next = [...prev];
-      for (const log of logs) {
+      for (const log of parsedLogs) {
         applyLog(next, log);
       }
       return next;
     });
-  }, []);
+
+    // Backstop: re-fetch the wall after confirmation
+    if (contractAddress && clientRef.current) {
+      fetchWall(clientRef.current as any, contractAddress)
+        .then((cells) => setWall(cells))
+        .catch(() => {});
+    }
+  }, [contractAddress]);
 
   const selectedCell = selectedId !== null && wall[selectedId] ? wall[selectedId] : null;
 

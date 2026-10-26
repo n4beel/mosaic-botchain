@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { formatEther } from "viem";
+import { formatEther, parseEventLogs } from "viem";
 import {
   useAccount,
   useWriteContract,
@@ -95,8 +95,17 @@ export default function CellCard({
       setStage("confirmed");
       toast("success", "Transaction confirmed", `Applied on block ${receipt.blockNumber}`);
 
-      // Pass first decoded log to caller for optimistic update
-      onTxSuccess(receipt.logs);
+      // Pass decoded event logs to caller for immediate wall update
+      let decodedLogs: any[] = [];
+      try {
+        decodedLogs = parseEventLogs({
+          abi: mosaicAbi,
+          logs: receipt.logs,
+        });
+      } catch {
+        decodedLogs = receipt.logs as any[];
+      }
+      onTxSuccess(decodedLogs);
       if (isBatchMode) {
         onClearBatch();
       }
